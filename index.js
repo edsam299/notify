@@ -13,7 +13,7 @@ app.post('/line-notify', function(req, res, next) {
     var imageFile =''
     var messages=''
     var message=''
-    
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     request({
       method: 'POST',
       url: 'https://us-central1-fir-api-514b9.cloudfunctions.net/api/getdocument',
@@ -31,12 +31,20 @@ app.post('/line-notify', function(req, res, next) {
       if(err){
         console.log(err);
       } else {
-        message = messages.topic+'\n'
+        // message = messages.topic+'\n'
         stickerId = messages.stickerId
         stickerPackageId = messages.stickerPackageId
         token = messages.token
-        for(let i=0; i< messages.message.length; i++){
-          message+=messages.message[i]+'\n'
+        var day = new Date();
+        for(let i=0; i< messages.messageList.length; i++){
+          if(messages.messageList[i].day==day.getDay()){
+            message = messages.messageList[i].topic+' '+day.getDate()+' '+months[day.getMonth()]+' '+day.getFullYear()+' '+messages.messageList[i].time+' น.\n'
+            for(let m=0; m<messages.messageList[i].messages.length; m++){
+              if(messages.messageList[i].messages[m].status=='active'){
+                message+=messages.messageList[i].messages[m].message+'\n'
+              }
+            }           
+          }          
         }
         request({
           method: 'POST',
