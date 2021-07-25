@@ -13,6 +13,7 @@ app.post('/line-notify', function(req, res, next) {
     var imageFile =''
     var messages=''
     var message=''
+    var sendMessage = false
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     request({
       method: 'POST',
@@ -37,6 +38,10 @@ app.post('/line-notify', function(req, res, next) {
         token = messages.token
         var day = new Date();
         for(let i=0; i< messages.messageList.length; i++){
+          if(!messages.messageList[i].send){
+            break;
+          }
+          sendMessage = true
           if(messages.messageList[i].day==day.getDay()){
             message = messages.messageList[i].topic+' '+day.getDate()+' '+months[day.getMonth()]+' '+day.getFullYear()+' '+messages.messageList[i].time+' น.\n'
             for(let m=0; m<messages.messageList[i].messages.length; m++){
@@ -46,31 +51,39 @@ app.post('/line-notify', function(req, res, next) {
             }           
           }          
         }
-        request({
-          method: 'POST',
-          uri: 'https://notify-api.line.me/api/notify',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          },
-          auth: {
-            'bearer': token
-          },
-          form: {
-            message: message,
-            stickerPackageId: stickerPackageId,
-            stickerId: stickerId,
-            imageFile: imageFile
-          }
-        }, (err, httpResponse, body) => {
-          if(err){
-            console.log(err);
-          } else {
-            res.json({
-              httpResponse: httpResponse,
-              body: body
-            });
-          }
-        });
+        if(sendMessage){
+          request({
+            method: 'POST',
+            uri: 'https://notify-api.line.me/api/notify',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            auth: {
+              'bearer': token
+            },
+            form: {
+              message: message,
+              stickerPackageId: stickerPackageId,
+              stickerId: stickerId,
+              imageFile: imageFile
+            }
+          }, (err, httpResponse, body) => {
+            if(err){
+              console.log(err);
+            } else {
+              res.json({
+                httpResponse: httpResponse,
+                body: body
+              });
+            }
+          });
+        }else{
+          res.json({
+            httpResponse: httpResponse,
+            body: body
+          });
+        }
+ 
         // res.json({
         //   httpResponse: httpResponse,
         //   body: body
@@ -80,6 +93,6 @@ app.post('/line-notify', function(req, res, next) {
 
   });
 app.listen(8080, () => {
-  console.log('Application is running on port 8003')
+  console.log('Application is running on port 8081')
 })
 
