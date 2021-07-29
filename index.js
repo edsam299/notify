@@ -95,7 +95,7 @@ app.post('/line-notify', function(req, res, next) {
     });
 
   });
-app.listen(8080, () => {
+app.listen(8003, () => {
   console.log('Application is running on port 8080')
 })
 
