@@ -37,18 +37,21 @@ app.post('/line-notify', function(req, res, next) {
         stickerPackageId = messages.stickerPackageId
         token = messages.token
         var day = new Date();
-        for(let i=0; i< messages.messageList.length; i++){
-          if(!messages.messageList[i].send){
-            break;
-          }
-          sendMessage = true
-          if(messages.messageList[i].day==day.getDay()){
-            message = messages.messageList[i].topic+' '+day.getDate()+' '+months[day.getMonth()]+' '+day.getFullYear()+' '+messages.messageList[i].time+' น.\n'
+        var time=''
+        // console.log(JSON.stringify(messages))
+        for(let i=0; i< messages.messageList.length; i++){          
+          if(messages.messageList[i].day==day.getDay() && messages.messageList[i].send==true){
+            sendMessage = true
+            if(messages.messageList[i].time!=""){
+              time+=messages.messageList[i].time+' น.'
+            }
+            message = messages.messageList[i].topic+' '+day.getDate()+' '+months[day.getMonth()]+' '+day.getFullYear()+' '+time+'\n'
             for(let m=0; m<messages.messageList[i].messages.length; m++){
               if(messages.messageList[i].messages[m].status=='active'){
                 message+=messages.messageList[i].messages[m].message+'\n'
               }
-            }           
+            }  
+            break         
           }          
         }
         if(sendMessage){
@@ -93,6 +96,6 @@ app.post('/line-notify', function(req, res, next) {
 
   });
 app.listen(8080, () => {
-  console.log('Application is running on port 8081')
+  console.log('Application is running on port 8080')
 })
 
